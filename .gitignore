@@ -1,0 +1,37 @@
+# Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# NuGet
+.nuget/
+packages/
+*.nupkg
+*.snupkg
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment
+.env
+appsettings.*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo

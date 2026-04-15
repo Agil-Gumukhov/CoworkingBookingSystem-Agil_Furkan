@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="../../Downloads/MicroservicesCTIS-master/Users.API/Users.API.csproj" />
+  <Project Path="../../Downloads/MicroservicesCTIS-master/Users.APP/Users.APP.csproj" />
+  <Project Path="CORE/CORE.csproj" />
+  <Project Path="Coworking.API/Coworking.API.csproj" />
+  <Project Path="Coworking.APP/Coworking.APP.csproj" Id="953accab-1d0e-4938-a709-67be585dead0" />
+  <Project Path="CoworkingBookingSystem.ServiceDefaults/CoworkingBookingSystem.ServiceDefaults.csproj" />
+</Solution>
