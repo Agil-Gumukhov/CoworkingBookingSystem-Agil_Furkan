@@ -15,7 +15,7 @@ namespace Coworking.APP.Features.Branches
 
         public async Task<BranchQueryResponse> Handle(BranchQueryRequest request, CancellationToken cancellationToken)
         {
-            var branch = await _service.GetByIdAsync(request.Id, cancellationToken);
+            var branch = await _service.GetBranchByIdAsync(request.Id, cancellationToken);
 
             if (branch == null)
                 throw new Exception($"Branch with Id {request.Id} not found");
@@ -47,7 +47,7 @@ namespace Coworking.APP.Features.Branches
 
         public async Task<List<BranchQueryResponse>> Handle(BranchQueryAllRequest request, CancellationToken cancellationToken)
         {
-            var branches = await _service.GetAllAsync(cancellationToken);
+            var branches = await _service.GetAllBranchesAsync(cancellationToken);
 
             return branches.Select(b => new BranchQueryResponse
             {

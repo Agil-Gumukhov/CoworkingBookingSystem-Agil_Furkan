@@ -1,41 +1,23 @@
 using Coworking.APP.Domain;
+using Coworking.APP.Services;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Coworking.APP.Features.Bookings
 {
     public class BookingUpdateHandler : IRequestHandler<BookingUpdateRequest, BookingUpdateResponse>
     {
-        private readonly CoworkingDb _db;
+        private readonly BookingService _service;
 
-        public BookingUpdateHandler(CoworkingDb db)
+        public BookingUpdateHandler(BookingService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<BookingUpdateResponse> Handle(BookingUpdateRequest request, CancellationToken cancellationToken)
         {
-            var booking = await _db.Bookings.FirstOrDefaultAsync(b => b.Id == request.Id, cancellationToken);
+            var booking = await _service.GetBookingByIdAsync(request.Id, cancellationToken);
             if (booking == null)
                 throw new Exception($"Booking with Id {request.Id} not found");
-
-            var branchExists = await _db.Branches.AnyAsync(b => b.Id == request.BranchId, cancellationToken);
-            if (!branchExists)
-                throw new Exception($"Branch with Id {request.BranchId} not found");
-
-            if (request.RoomId.HasValue)
-            {
-                var roomExists = await _db.Rooms.AnyAsync(r => r.Id == request.RoomId, cancellationToken);
-                if (!roomExists)
-                    throw new Exception($"Room with Id {request.RoomId} not found");
-            }
-
-            if (request.DeskId.HasValue)
-            {
-                var deskExists = await _db.Desks.AnyAsync(d => d.Id == request.DeskId, cancellationToken);
-                if (!deskExists)
-                    throw new Exception($"Desk with Id {request.DeskId} not found");
-            }
 
             booking.UserId = request.UserId;
             booking.BranchId = request.BranchId;
@@ -45,8 +27,7 @@ namespace Coworking.APP.Features.Bookings
             booking.EndDate = request.EndDate;
             booking.Status = request.Status;
 
-            _db.Bookings.Update(booking);
-            await _db.SaveChangesAsync(cancellationToken);
+            booking = await _service.UpdateBookingAsync(booking, cancellationToken);
 
             return new BookingUpdateResponse
             {

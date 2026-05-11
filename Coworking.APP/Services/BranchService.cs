@@ -1,5 +1,5 @@
-using Coworking.APP.Domain;
 using CORE.APP.Services;
+using Coworking.APP.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Coworking.APP.Services
@@ -10,60 +10,39 @@ namespace Coworking.APP.Services
         {
         }
 
-        public async Task<List<Branch>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<List<Branch>> GetAllBranchesAsync(CancellationToken cancellationToken)
         {
             return await DbSet().ToListAsync(cancellationToken);
         }
 
-        public async Task<Branch> GetByIdAsync(int id, CancellationToken cancellationToken)
+        public async Task<Branch> GetBranchByIdAsync(int id, CancellationToken cancellationToken)
         {
             return await DbSet().FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
         }
 
-        public async Task<bool> CreateAsync(Branch branch, CancellationToken cancellationToken)
+        public async Task<Branch> CreateBranchAsync(Branch branch, CancellationToken cancellationToken)
         {
-            try
-            {
-                await base.CreateAsync(branch, cancellationToken);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            await CreateAsync(branch, cancellationToken);
+            return branch;
         }
 
-        public async Task<bool> UpdateAsync(Branch branch, CancellationToken cancellationToken)
+        public async Task<Branch> UpdateBranchAsync(Branch branch, CancellationToken cancellationToken)
         {
-            try
-            {
-                await base.UpdateAsync(branch, cancellationToken);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            await UpdateAsync(branch, cancellationToken);
+            return branch;
         }
 
-        public async Task<bool> DeleteAsync(Branch branch, CancellationToken cancellationToken)
+        public async Task DeleteBranchAsync(Branch branch, CancellationToken cancellationToken)
         {
-            try
-            {
-                await base.DeleteAsync(branch, cancellationToken);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+            var branchWithRoomsDesks = await DbSet()
+                .Include(b => b.Rooms)
+                .Include(b => b.Desks)
+                .FirstOrDefaultAsync(b => b.Id == branch.Id, cancellationToken);
 
-        public async Task<bool> HasRelatedDataAsync(int id, CancellationToken cancellationToken)
-        {
-            var branch = await DbSet().Include(b => b.Rooms).Include(b => b.Desks)
-                .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
-            return branch != null && (branch.Rooms.Any() || branch.Desks.Any());
+            if (branchWithRoomsDesks != null && (branchWithRoomsDesks.Rooms.Any() || branchWithRoomsDesks.Desks.Any()))
+                throw new InvalidOperationException("Cannot delete branch that has associated rooms or desks");
+
+            await DeleteAsync(branch, cancellationToken);
         }
     }
 }

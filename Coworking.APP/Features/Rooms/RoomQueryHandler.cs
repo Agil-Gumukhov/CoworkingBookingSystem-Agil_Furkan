@@ -15,7 +15,7 @@ namespace Coworking.APP.Features.Rooms
 
         public async Task<RoomQueryResponse> Handle(RoomQueryRequest request, CancellationToken cancellationToken)
         {
-            var room = await _service.GetByIdAsync(request.Id, cancellationToken);
+            var room = await _service.GetRoomByIdAsync(request.Id, cancellationToken);
 
             if (room == null)
                 throw new Exception($"Room with Id {request.Id} not found");
@@ -47,8 +47,7 @@ namespace Coworking.APP.Features.Rooms
 
         public async Task<List<RoomQueryResponse>> Handle(RoomQueryAllRequest request, CancellationToken cancellationToken)
         {
-            var rooms = await _service.GetAllAsync(cancellationToken);
-
+            var rooms = await _service.GetAllRoomsAsync(cancellationToken);
             return rooms.Select(r => new RoomQueryResponse
             {
                 Id = r.Id,
@@ -56,7 +55,7 @@ namespace Coworking.APP.Features.Rooms
                 Capacity = r.Capacity,
                 HasProjector = r.HasProjector,
                 BranchId = r.BranchId,
-                BranchName = r.Branch.Name
+                BranchName = r.Branch?.Name
             }).ToList();
         }
     }

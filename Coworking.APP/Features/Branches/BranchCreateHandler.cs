@@ -22,10 +22,7 @@ namespace Coworking.APP.Features.Branches
                 City = request.City
             };
 
-            var success = await _service.CreateAsync(branch, cancellationToken);
-
-            if (!success)
-                throw new Exception("Failed to create branch");
+            branch = await _service.CreateBranchAsync(branch, cancellationToken);
 
             return new BranchCreateResponse
             {

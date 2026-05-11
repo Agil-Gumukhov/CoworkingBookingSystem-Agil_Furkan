@@ -15,19 +15,12 @@ namespace Coworking.APP.Features.Rooms
 
         public async Task<RoomDeleteResponse> Handle(RoomDeleteRequest request, CancellationToken cancellationToken)
         {
-            var room = await _service.GetByIdAsync(request.Id, cancellationToken);
+            var room = await _service.GetRoomByIdAsync(request.Id, cancellationToken);
 
             if (room == null)
                 throw new Exception($"Room with Id {request.Id} not found");
 
-            var hasRelatedData = await _service.HasRelatedDataAsync(request.Id, cancellationToken);
-            if (hasRelatedData)
-                throw new Exception("Cannot delete room that has associated bookings");
-
-            var success = await _service.DeleteAsync(room, cancellationToken);
-
-            if (!success)
-                throw new Exception("Failed to delete room");
+            await _service.DeleteRoomAsync(room, cancellationToken);
 
             return new RoomDeleteResponse
             {

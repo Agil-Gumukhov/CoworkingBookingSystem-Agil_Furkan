@@ -15,7 +15,7 @@ namespace Coworking.APP.Features.Branches
 
         public async Task<BranchUpdateResponse> Handle(BranchUpdateRequest request, CancellationToken cancellationToken)
         {
-            var branch = await _service.GetByIdAsync(request.Id, cancellationToken);
+            var branch = await _service.GetBranchByIdAsync(request.Id, cancellationToken);
             if (branch == null)
                 throw new Exception($"Branch with Id {request.Id} not found");
 
@@ -23,10 +23,7 @@ namespace Coworking.APP.Features.Branches
             branch.Address = request.Address;
             branch.City = request.City;
 
-            var success = await _service.UpdateAsync(branch, cancellationToken);
-
-            if (!success)
-                throw new Exception("Failed to update branch");
+            branch = await _service.UpdateBranchAsync(branch, cancellationToken);
 
             return new BranchUpdateResponse
             {

@@ -15,7 +15,7 @@ namespace Coworking.APP.Features.Desks
 
         public async Task<DeskQueryResponse> Handle(DeskQueryRequest request, CancellationToken cancellationToken)
         {
-            var desk = await _service.GetByIdAsync(request.Id, cancellationToken);
+            var desk = await _service.GetDeskByIdAsync(request.Id, cancellationToken);
 
             if (desk == null)
                 throw new Exception($"Desk with Id {request.Id} not found");
@@ -47,8 +47,7 @@ namespace Coworking.APP.Features.Desks
 
         public async Task<List<DeskQueryResponse>> Handle(DeskQueryAllRequest request, CancellationToken cancellationToken)
         {
-            var desks = await _service.GetAllAsync(cancellationToken);
-
+            var desks = await _service.GetAllDesksAsync(cancellationToken);
             return desks.Select(d => new DeskQueryResponse
             {
                 Id = d.Id,
@@ -56,7 +55,7 @@ namespace Coworking.APP.Features.Desks
                 Floor = d.Floor,
                 IsPrivate = d.IsPrivate,
                 BranchId = d.BranchId,
-                BranchName = d.Branch.Name
+                BranchName = d.Branch?.Name
             }).ToList();
         }
     }

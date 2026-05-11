@@ -1,25 +1,21 @@
 using Coworking.APP.Domain;
+using Coworking.APP.Services;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Coworking.APP.Features.Bookings
 {
     public class BookingQueryHandler : IRequestHandler<BookingQueryRequest, BookingQueryResponse>
     {
-        private readonly CoworkingDb _db;
+        private readonly BookingService _service;
 
-        public BookingQueryHandler(CoworkingDb db)
+        public BookingQueryHandler(BookingService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<BookingQueryResponse> Handle(BookingQueryRequest request, CancellationToken cancellationToken)
         {
-            var booking = await _db.Bookings
-                .Include(b => b.Branch)
-                .Include(b => b.Room)
-                .Include(b => b.Desk)
-                .FirstOrDefaultAsync(b => b.Id == request.Id, cancellationToken);
+            var booking = await _service.GetBookingByIdAsync(request.Id, cancellationToken);
 
             if (booking == null)
                 throw new Exception($"Booking with Id {request.Id} not found");
@@ -47,36 +43,30 @@ namespace Coworking.APP.Features.Bookings
 
     public class BookingQueryAllHandler : IRequestHandler<BookingQueryAllRequest, List<BookingQueryResponse>>
     {
-        private readonly CoworkingDb _db;
+        private readonly BookingService _service;
 
-        public BookingQueryAllHandler(CoworkingDb db)
+        public BookingQueryAllHandler(BookingService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<List<BookingQueryResponse>> Handle(BookingQueryAllRequest request, CancellationToken cancellationToken)
         {
-            var bookings = await _db.Bookings
-                .Include(b => b.Branch)
-                .Include(b => b.Room)
-                .Include(b => b.Desk)
-                .Select(b => new BookingQueryResponse
-                {
-                    Id = b.Id,
-                    UserId = b.UserId,
-                    BranchId = b.BranchId,
-                    BranchName = b.Branch.Name,
-                    RoomId = b.RoomId,
-                    RoomName = b.Room.Name,
-                    DeskId = b.DeskId,
-                    DeskCode = b.Desk.Code,
-                    StartDate = b.StartDate,
-                    EndDate = b.EndDate,
-                    Status = b.Status
-                })
-                .ToListAsync(cancellationToken);
-
-            return bookings;
+            var bookings = await _service.GetAllBookingsAsync(cancellationToken);
+            return bookings.Select(b => new BookingQueryResponse
+            {
+                Id = b.Id,
+                UserId = b.UserId,
+                BranchId = b.BranchId,
+                BranchName = b.Branch?.Name,
+                RoomId = b.RoomId,
+                RoomName = b.Room?.Name,
+                DeskId = b.DeskId,
+                DeskCode = b.Desk?.Code,
+                StartDate = b.StartDate,
+                EndDate = b.EndDate,
+                Status = b.Status
+            }).ToList();
         }
     }
 }

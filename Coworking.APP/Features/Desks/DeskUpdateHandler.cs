@@ -1,35 +1,30 @@
 using Coworking.APP.Domain;
+using Coworking.APP.Services;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Coworking.APP.Features.Desks
 {
     public class DeskUpdateHandler : IRequestHandler<DeskUpdateRequest, DeskUpdateResponse>
     {
-        private readonly CoworkingDb _db;
+        private readonly DeskService _service;
 
-        public DeskUpdateHandler(CoworkingDb db)
+        public DeskUpdateHandler(DeskService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<DeskUpdateResponse> Handle(DeskUpdateRequest request, CancellationToken cancellationToken)
         {
-            var desk = await _db.Desks.FirstOrDefaultAsync(d => d.Id == request.Id, cancellationToken);
+            var desk = await _service.GetDeskByIdAsync(request.Id, cancellationToken);
             if (desk == null)
                 throw new Exception($"Desk with Id {request.Id} not found");
-
-            var branchExists = await _db.Branches.AnyAsync(b => b.Id == request.BranchId, cancellationToken);
-            if (!branchExists)
-                throw new Exception($"Branch with Id {request.BranchId} not found");
 
             desk.Code = request.Code;
             desk.Floor = request.Floor;
             desk.IsPrivate = request.IsPrivate;
             desk.BranchId = request.BranchId;
 
-            _db.Desks.Update(desk);
-            await _db.SaveChangesAsync(cancellationToken);
+            desk = await _service.UpdateDeskAsync(desk, cancellationToken);
 
             return new DeskUpdateResponse
             {

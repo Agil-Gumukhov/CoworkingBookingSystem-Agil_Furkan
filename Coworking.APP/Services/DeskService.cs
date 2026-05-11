@@ -1,5 +1,5 @@
-using Coworking.APP.Domain;
 using CORE.APP.Services;
+using Coworking.APP.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Coworking.APP.Services
@@ -10,60 +10,50 @@ namespace Coworking.APP.Services
         {
         }
 
-        public async Task<List<Desk>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<List<Desk>> GetAllDesksAsync(CancellationToken cancellationToken)
         {
-            return await DbSet().Include(d => d.Branch).ToListAsync(cancellationToken);
+            return await DbSet()
+                .Include(d => d.Branch)
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task<Desk> GetByIdAsync(int id, CancellationToken cancellationToken)
+        public async Task<Desk> GetDeskByIdAsync(int id, CancellationToken cancellationToken)
         {
-            return await DbSet().Include(d => d.Branch).FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
-        }
-
-        public async Task<bool> CreateAsync(Desk desk, CancellationToken cancellationToken)
-        {
-            try
-            {
-                await base.CreateAsync(desk, cancellationToken);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public async Task<bool> UpdateAsync(Desk desk, CancellationToken cancellationToken)
-        {
-            try
-            {
-                await base.UpdateAsync(desk, cancellationToken);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public async Task<bool> DeleteAsync(Desk desk, CancellationToken cancellationToken)
-        {
-            try
-            {
-                await base.DeleteAsync(desk, cancellationToken);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public async Task<bool> HasRelatedDataAsync(int id, CancellationToken cancellationToken)
-        {
-            var desk = await DbSet().Include(d => d.Bookings)
+            return await DbSet()
+                .Include(d => d.Branch)
                 .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
-            return desk != null && desk.Bookings.Any();
+        }
+
+        public async Task<Desk> CreateDeskAsync(Desk desk, CancellationToken cancellationToken)
+        {
+            var branch = await DbSet<Branch>().FirstOrDefaultAsync(b => b.Id == desk.BranchId, cancellationToken);
+            if (branch == null)
+                throw new InvalidOperationException($"Branch with Id {desk.BranchId} not found");
+
+            await CreateAsync(desk, cancellationToken);
+            return desk;
+        }
+
+        public async Task<Desk> UpdateDeskAsync(Desk desk, CancellationToken cancellationToken)
+        {
+            var branch = await DbSet<Branch>().FirstOrDefaultAsync(b => b.Id == desk.BranchId, cancellationToken);
+            if (branch == null)
+                throw new InvalidOperationException($"Branch with Id {desk.BranchId} not found");
+
+            await UpdateAsync(desk, cancellationToken);
+            return desk;
+        }
+
+        public async Task DeleteDeskAsync(Desk desk, CancellationToken cancellationToken)
+        {
+            var deskWithBookings = await DbSet()
+                .Include(d => d.Bookings)
+                .FirstOrDefaultAsync(d => d.Id == desk.Id, cancellationToken);
+
+            if (deskWithBookings != null && deskWithBookings.Bookings.Any())
+                throw new InvalidOperationException("Cannot delete desk that has associated bookings");
+
+            await DeleteAsync(desk, cancellationToken);
         }
     }
 }

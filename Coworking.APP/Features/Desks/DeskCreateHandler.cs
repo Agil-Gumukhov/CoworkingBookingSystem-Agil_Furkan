@@ -1,24 +1,20 @@
 using Coworking.APP.Domain;
+using Coworking.APP.Services;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Coworking.APP.Features.Desks
 {
     public class DeskCreateHandler : IRequestHandler<DeskCreateRequest, DeskCreateResponse>
     {
-        private readonly CoworkingDb _db;
+        private readonly DeskService _service;
 
-        public DeskCreateHandler(CoworkingDb db)
+        public DeskCreateHandler(DeskService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<DeskCreateResponse> Handle(DeskCreateRequest request, CancellationToken cancellationToken)
         {
-            var branchExists = await _db.Branches.AnyAsync(b => b.Id == request.BranchId, cancellationToken);
-            if (!branchExists)
-                throw new Exception($"Branch with Id {request.BranchId} not found");
-
             var desk = new Desk
             {
                 Code = request.Code,
@@ -27,8 +23,7 @@ namespace Coworking.APP.Features.Desks
                 BranchId = request.BranchId
             };
 
-            _db.Desks.Add(desk);
-            await _db.SaveChangesAsync(cancellationToken);
+            desk = await _service.CreateDeskAsync(desk, cancellationToken);
 
             return new DeskCreateResponse
             {
