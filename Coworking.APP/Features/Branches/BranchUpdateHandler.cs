@@ -1,21 +1,21 @@
 using Coworking.APP.Domain;
+using Coworking.APP.Services;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Coworking.APP.Features.Branches
 {
     public class BranchUpdateHandler : IRequestHandler<BranchUpdateRequest, BranchUpdateResponse>
     {
-        private readonly CoworkingDb _db;
+        private readonly BranchService _service;
 
-        public BranchUpdateHandler(CoworkingDb db)
+        public BranchUpdateHandler(BranchService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<BranchUpdateResponse> Handle(BranchUpdateRequest request, CancellationToken cancellationToken)
         {
-            var branch = await _db.Branches.FirstOrDefaultAsync(b => b.Id == request.Id, cancellationToken);
+            var branch = await _service.GetByIdAsync(request.Id, cancellationToken);
             if (branch == null)
                 throw new Exception($"Branch with Id {request.Id} not found");
 
@@ -23,8 +23,10 @@ namespace Coworking.APP.Features.Branches
             branch.Address = request.Address;
             branch.City = request.City;
 
-            _db.Branches.Update(branch);
-            await _db.SaveChangesAsync(cancellationToken);
+            var success = await _service.UpdateAsync(branch, cancellationToken);
+
+            if (!success)
+                throw new Exception("Failed to update branch");
 
             return new BranchUpdateResponse
             {

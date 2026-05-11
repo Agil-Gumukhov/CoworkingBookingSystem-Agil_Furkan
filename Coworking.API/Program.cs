@@ -1,4 +1,5 @@
 using Coworking.APP.Domain;
+using Coworking.APP.Services;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
 
@@ -19,6 +20,12 @@ builder.Services.AddDbContext<CoworkingDb>(options =>
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(CoworkingDb).Assembly));
+
+// Register Services (Business Logic Layer)
+builder.Services.AddScoped<BranchService>();
+builder.Services.AddScoped<RoomService>();
+builder.Services.AddScoped<DeskService>();
+builder.Services.AddScoped<BookingService>();
 
 
 var app = builder.Build();

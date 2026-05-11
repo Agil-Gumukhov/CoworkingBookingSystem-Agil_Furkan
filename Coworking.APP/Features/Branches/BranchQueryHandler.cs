@@ -1,24 +1,21 @@
 using Coworking.APP.Domain;
+using Coworking.APP.Services;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Coworking.APP.Features.Branches
 {
     public class BranchQueryHandler : IRequestHandler<BranchQueryRequest, BranchQueryResponse>
     {
-        private readonly CoworkingDb _db;
+        private readonly BranchService _service;
 
-        public BranchQueryHandler(CoworkingDb db)
+        public BranchQueryHandler(BranchService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<BranchQueryResponse> Handle(BranchQueryRequest request, CancellationToken cancellationToken)
         {
-            var branch = await _db.Branches
-                .Include(b => b.Rooms)
-                .Include(b => b.Desks)
-                .FirstOrDefaultAsync(b => b.Id == request.Id, cancellationToken);
+            var branch = await _service.GetByIdAsync(request.Id, cancellationToken);
 
             if (branch == null)
                 throw new Exception($"Branch with Id {request.Id} not found");
@@ -41,30 +38,26 @@ namespace Coworking.APP.Features.Branches
 
     public class BranchQueryAllHandler : IRequestHandler<BranchQueryAllRequest, List<BranchQueryResponse>>
     {
-        private readonly CoworkingDb _db;
+        private readonly BranchService _service;
 
-        public BranchQueryAllHandler(CoworkingDb db)
+        public BranchQueryAllHandler(BranchService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<List<BranchQueryResponse>> Handle(BranchQueryAllRequest request, CancellationToken cancellationToken)
         {
-            var branches = await _db.Branches
-                .Include(b => b.Rooms)
-                .Include(b => b.Desks)
-                .Select(b => new BranchQueryResponse
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                    Address = b.Address,
-                    City = b.City,
-                    RoomCount = b.Rooms.Count,
-                    DeskCount = b.Desks.Count
-                })
-                .ToListAsync(cancellationToken);
+            var branches = await _service.GetAllAsync(cancellationToken);
 
-            return branches;
+            return branches.Select(b => new BranchQueryResponse
+            {
+                Id = b.Id,
+                Name = b.Name,
+                Address = b.Address,
+                City = b.City,
+                RoomCount = b.Rooms.Count,
+                DeskCount = b.Desks.Count
+            }).ToList();
         }
     }
 }

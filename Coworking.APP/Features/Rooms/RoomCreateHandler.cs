@@ -1,4 +1,5 @@
 using Coworking.APP.Domain;
+using Coworking.APP.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,10 +7,12 @@ namespace Coworking.APP.Features.Rooms
 {
     public class RoomCreateHandler : IRequestHandler<RoomCreateRequest, RoomCreateResponse>
     {
+        private readonly RoomService _service;
         private readonly CoworkingDb _db;
 
-        public RoomCreateHandler(CoworkingDb db)
+        public RoomCreateHandler(RoomService service, CoworkingDb db)
         {
+            _service = service;
             _db = db;
         }
 
@@ -27,8 +30,10 @@ namespace Coworking.APP.Features.Rooms
                 BranchId = request.BranchId
             };
 
-            _db.Rooms.Add(room);
-            await _db.SaveChangesAsync(cancellationToken);
+            var success = await _service.CreateAsync(room, cancellationToken);
+
+            if (!success)
+                throw new Exception("Failed to create room");
 
             return new RoomCreateResponse
             {

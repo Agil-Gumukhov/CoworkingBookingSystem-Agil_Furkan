@@ -1,32 +1,33 @@
 using Coworking.APP.Domain;
+using Coworking.APP.Services;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Coworking.APP.Features.Rooms
 {
     public class RoomDeleteHandler : IRequestHandler<RoomDeleteRequest, RoomDeleteResponse>
     {
-        private readonly CoworkingDb _db;
+        private readonly RoomService _service;
 
-        public RoomDeleteHandler(CoworkingDb db)
+        public RoomDeleteHandler(RoomService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<RoomDeleteResponse> Handle(RoomDeleteRequest request, CancellationToken cancellationToken)
         {
-            var room = await _db.Rooms
-                .Include(r => r.Bookings)
-                .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
+            var room = await _service.GetByIdAsync(request.Id, cancellationToken);
 
             if (room == null)
                 throw new Exception($"Room with Id {request.Id} not found");
 
-            if (room.Bookings.Any())
+            var hasRelatedData = await _service.HasRelatedDataAsync(request.Id, cancellationToken);
+            if (hasRelatedData)
                 throw new Exception("Cannot delete room that has associated bookings");
 
-            _db.Rooms.Remove(room);
-            await _db.SaveChangesAsync(cancellationToken);
+            var success = await _service.DeleteAsync(room, cancellationToken);
+
+            if (!success)
+                throw new Exception("Failed to delete room");
 
             return new RoomDeleteResponse
             {

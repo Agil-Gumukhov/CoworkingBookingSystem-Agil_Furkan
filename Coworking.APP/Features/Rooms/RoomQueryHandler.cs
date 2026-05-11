@@ -1,23 +1,21 @@
 using Coworking.APP.Domain;
+using Coworking.APP.Services;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Coworking.APP.Features.Rooms
 {
     public class RoomQueryHandler : IRequestHandler<RoomQueryRequest, RoomQueryResponse>
     {
-        private readonly CoworkingDb _db;
+        private readonly RoomService _service;
 
-        public RoomQueryHandler(CoworkingDb db)
+        public RoomQueryHandler(RoomService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<RoomQueryResponse> Handle(RoomQueryRequest request, CancellationToken cancellationToken)
         {
-            var room = await _db.Rooms
-                .Include(r => r.Branch)
-                .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
+            var room = await _service.GetByIdAsync(request.Id, cancellationToken);
 
             if (room == null)
                 throw new Exception($"Room with Id {request.Id} not found");
@@ -40,29 +38,26 @@ namespace Coworking.APP.Features.Rooms
 
     public class RoomQueryAllHandler : IRequestHandler<RoomQueryAllRequest, List<RoomQueryResponse>>
     {
-        private readonly CoworkingDb _db;
+        private readonly RoomService _service;
 
-        public RoomQueryAllHandler(CoworkingDb db)
+        public RoomQueryAllHandler(RoomService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<List<RoomQueryResponse>> Handle(RoomQueryAllRequest request, CancellationToken cancellationToken)
         {
-            var rooms = await _db.Rooms
-                .Include(r => r.Branch)
-                .Select(r => new RoomQueryResponse
-                {
-                    Id = r.Id,
-                    Name = r.Name,
-                    Capacity = r.Capacity,
-                    HasProjector = r.HasProjector,
-                    BranchId = r.BranchId,
-                    BranchName = r.Branch.Name
-                })
-                .ToListAsync(cancellationToken);
+            var rooms = await _service.GetAllAsync(cancellationToken);
 
-            return rooms;
+            return rooms.Select(r => new RoomQueryResponse
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Capacity = r.Capacity,
+                HasProjector = r.HasProjector,
+                BranchId = r.BranchId,
+                BranchName = r.Branch.Name
+            }).ToList();
         }
     }
 }

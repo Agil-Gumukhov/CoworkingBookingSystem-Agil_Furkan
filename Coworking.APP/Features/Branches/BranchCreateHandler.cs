@@ -1,15 +1,16 @@
 using Coworking.APP.Domain;
+using Coworking.APP.Services;
 using MediatR;
 
 namespace Coworking.APP.Features.Branches
 {
     public class BranchCreateHandler : IRequestHandler<BranchCreateRequest, BranchCreateResponse>
     {
-        private readonly CoworkingDb _db;
+        private readonly BranchService _service;
 
-        public BranchCreateHandler(CoworkingDb db)
+        public BranchCreateHandler(BranchService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<BranchCreateResponse> Handle(BranchCreateRequest request, CancellationToken cancellationToken)
@@ -21,8 +22,10 @@ namespace Coworking.APP.Features.Branches
                 City = request.City
             };
 
-            _db.Branches.Add(branch);
-            await _db.SaveChangesAsync(cancellationToken);
+            var success = await _service.CreateAsync(branch, cancellationToken);
+
+            if (!success)
+                throw new Exception("Failed to create branch");
 
             return new BranchCreateResponse
             {
