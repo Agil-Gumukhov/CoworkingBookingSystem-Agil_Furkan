@@ -1,0 +1,111 @@
+<svg width="1120" height="720" viewBox="0 0 1120 720" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="3" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+    <style>
+      .canvas { fill: #f3f0d9; stroke: #333333; stroke-width: 2; }
+      .title { font: 700 26px Arial, sans-serif; fill: #222222; }
+      .box { fill: #c9d8eb; stroke: #263342; stroke-width: 2; filter: url(#shadow); }
+      .header { fill: #b7c8df; stroke: #263342; stroke-width: 2; }
+      .entity { font: 700 16px Arial, sans-serif; fill: #17212c; }
+      .field { font: 15px Arial, sans-serif; fill: #17212c; }
+      .rel { stroke: #333333; stroke-width: 2; fill: none; }
+      .note { font: 14px Arial, sans-serif; fill: #444444; }
+    </style>
+  </defs>
+
+  <rect x="24" y="24" width="1072" height="672" class="canvas"/>
+  <text x="560" y="62" text-anchor="middle" class="title">COWORKING BOOKING SYSTEM</text>
+
+  <!-- Branch -->
+  <rect x="80" y="110" width="250" height="170" rx="5" class="box"/>
+  <rect x="80" y="110" width="250" height="38" rx="5" class="header"/>
+  <text x="205" y="135" text-anchor="middle" class="entity">Branch</text>
+  <text x="100" y="172" class="field">Id int</text>
+  <text x="100" y="197" class="field">Name string</text>
+  <text x="100" y="222" class="field">Address string</text>
+  <text x="100" y="247" class="field">City string</text>
+
+  <!-- Room -->
+  <rect x="430" y="105" width="260" height="190" rx="5" class="box"/>
+  <rect x="430" y="105" width="260" height="38" rx="5" class="header"/>
+  <text x="560" y="130" text-anchor="middle" class="entity">Room</text>
+  <text x="450" y="167" class="field">Id int</text>
+  <text x="450" y="192" class="field">Name string</text>
+  <text x="450" y="217" class="field">Capacity int</text>
+  <text x="450" y="242" class="field">HasProjector bool</text>
+  <text x="450" y="267" class="field">BranchId int</text>
+
+  <!-- Desk -->
+  <rect x="780" y="105" width="260" height="190" rx="5" class="box"/>
+  <rect x="780" y="105" width="260" height="38" rx="5" class="header"/>
+  <text x="910" y="130" text-anchor="middle" class="entity">Desk</text>
+  <text x="800" y="167" class="field">Id int</text>
+  <text x="800" y="192" class="field">Code string</text>
+  <text x="800" y="217" class="field">Floor int</text>
+  <text x="800" y="242" class="field">IsPrivate bool</text>
+  <text x="800" y="267" class="field">BranchId int</text>
+
+  <!-- Booking -->
+  <rect x="400" y="395" width="320" height="230" rx="5" class="box"/>
+  <rect x="400" y="395" width="320" height="38" rx="5" class="header"/>
+  <text x="560" y="420" text-anchor="middle" class="entity">Booking</text>
+  <text x="420" y="457" class="field">Id int</text>
+  <text x="420" y="482" class="field">UserId int</text>
+  <text x="420" y="507" class="field">BranchId int</text>
+  <text x="420" y="532" class="field">RoomId int?</text>
+  <text x="420" y="557" class="field">DeskId int?</text>
+  <text x="420" y="582" class="field">StartDate DateTime</text>
+  <text x="420" y="607" class="field">EndDate DateTime</text>
+  <text x="420" y="632" class="field">Status string</text>
+
+  <!-- Amenity -->
+  <rect x="80" y="430" width="250" height="170" rx="5" class="box"/>
+  <rect x="80" y="430" width="250" height="38" rx="5" class="header"/>
+  <text x="205" y="455" text-anchor="middle" class="entity">Amenity</text>
+  <text x="100" y="492" class="field">Id int</text>
+  <text x="100" y="517" class="field">Name string</text>
+  <text x="100" y="542" class="field">Description string</text>
+  <text x="100" y="567" class="field">IsPremium bool</text>
+
+  <!-- BranchAmenity -->
+  <rect x="175" y="310" width="240" height="110" rx="5" class="box"/>
+  <rect x="175" y="310" width="240" height="38" rx="5" class="header"/>
+  <text x="295" y="335" text-anchor="middle" class="entity">BranchAmenity</text>
+  <text x="195" y="372" class="field">Id int</text>
+  <text x="195" y="397" class="field">BranchId int</text>
+  <text x="300" y="397" class="field">AmenityId int</text>
+
+  <!-- External Users Microservice note -->
+  <rect x="785" y="430" width="255" height="120" rx="5" class="box"/>
+  <rect x="785" y="430" width="255" height="38" rx="5" class="header"/>
+  <text x="912" y="455" text-anchor="middle" class="entity">Users Microservice</text>
+  <text x="805" y="492" class="field">User Id comes from Users.API</text>
+  <text x="805" y="517" class="field">JWT + roles are provided there</text>
+
+  <!-- Relationships -->
+  <line x1="330" y1="170" x2="430" y2="170" class="rel"/>
+  <text x="362" y="160" class="note">1..*</text>
+
+  <line x1="330" y1="235" x2="780" y2="235" class="rel"/>
+  <text x="510" y="225" class="note">1..*</text>
+
+  <path d="M 560 295 L 560 395" class="rel"/>
+  <text x="572" y="350" class="note">1..*</text>
+
+  <path d="M 910 295 L 910 365 L 675 365 L 675 395" class="rel"/>
+  <text x="838" y="355" class="note">1..*</text>
+
+  <path d="M 205 280 L 205 310" class="rel"/>
+  <text x="214" y="300" class="note">1..*</text>
+
+  <path d="M 205 430 L 205 420" class="rel"/>
+  <text x="214" y="426" class="note">1..*</text>
+
+  <path d="M 330 250 L 400 480" class="rel"/>
+  <text x="345" y="365" class="note">1..*</text>
+
+  <path d="M 785 490 L 720 490" class="rel"/>
+  <text x="735" y="480" class="note">UserId</text>
+</svg>
