@@ -27,7 +27,8 @@ namespace Coworking.APP.Features.Branches
                 Address = branch.Address,
                 City = branch.City,
                 RoomCount = branch.Rooms.Count,
-                DeskCount = branch.Desks.Count
+                DeskCount = branch.Desks.Count,
+                AmenityCount = branch.BranchAmenities.Count
             };
         }
     }
@@ -56,7 +57,8 @@ namespace Coworking.APP.Features.Branches
                 Address = b.Address,
                 City = b.City,
                 RoomCount = b.Rooms.Count,
-                DeskCount = b.Desks.Count
+                DeskCount = b.Desks.Count,
+                AmenityCount = b.BranchAmenities.Count
             }).ToList();
         }
     }

@@ -11,6 +11,8 @@ namespace Coworking.APP.Domain
     public class CoworkingDb : DbContext
     {
         public DbSet<Branch> Branches { get; set; }
+        public DbSet<Amenity> Amenities { get; set; }
+        public DbSet<BranchAmenity> BranchAmenities { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Desk> Desks { get; set; }
         public DbSet<Booking> Bookings { get; set; }
@@ -52,6 +54,18 @@ namespace Coworking.APP.Domain
                 .WithOne(b => b.Branch)
                 .HasForeignKey(b => b.BranchId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<BranchAmenity>()
+                .HasOne(ba => ba.Branch)
+                .WithMany(b => b.BranchAmenities)
+                .HasForeignKey(ba => ba.BranchId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<BranchAmenity>()
+                .HasOne(ba => ba.Amenity)
+                .WithMany(a => a.BranchAmenities)
+                .HasForeignKey(ba => ba.AmenityId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

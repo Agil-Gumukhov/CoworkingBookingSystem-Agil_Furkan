@@ -1,5 +1,5 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Users.APP.Features.Groups;
@@ -8,6 +8,7 @@ namespace Users.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class GroupsController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -18,59 +19,61 @@ namespace Users.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get() // Action
+        [AllowAnonymous]
+        public async Task<IActionResult> Get()
         {
             var query = await _mediator.Send(new GroupQueryRequest());
             var list = await query.ToListAsync();
-            return Ok(list); // 200
-            // NotFound // 404
-            // BadRequest // 400
-            // InternalServerError // 500
+            return Ok(list);
         }
 
-        [HttpGet("{id}")] // api/Groups/20
+        [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             var query = await _mediator.Send(new GroupQueryRequest());
             var item = await query.SingleOrDefaultAsync(q => q.Id == id);
             if (item is null)
-                return NotFound(); // 404
-            return Ok(item); // 200
+                return NotFound();
+            return Ok(item);
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Post(GroupCreateRequest request)
         {
-            if (ModelState.IsValid)
-            {
-                var response = await _mediator.Send(request);
-                if (response.IsSuccessful)
-                    return Ok(response);
-                return BadRequest(response); // 400
-            }
-            return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var response = await _mediator.Send(request);
+            if (response.IsSuccessful)
+                return Ok(response);
+
+            return BadRequest(response);
         }
 
         [HttpPut]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Put(GroupUpdateRequest request)
         {
-            if (ModelState.IsValid)
-            {
-                var response = await _mediator.Send(request);
-                if (response.IsSuccessful)
-                    return Ok(response);
-                return BadRequest(response); // 400
-            }
-            return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var response = await _mediator.Send(request);
+            if (response.IsSuccessful)
+                return Ok(response);
+
+            return BadRequest(response);
         }
 
-        [HttpDelete("{id}")] // api/Groups/17: route
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var response = await _mediator.Send(new GroupDeleteRequest { Id = id });
             if (response.IsSuccessful)
-                return NoContent(); // 204
-            return BadRequest(response); // 400
+                return NoContent();
+
+            return BadRequest(response);
         }
     }
 }

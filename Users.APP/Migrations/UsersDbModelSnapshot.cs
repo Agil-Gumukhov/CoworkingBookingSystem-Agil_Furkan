@@ -89,6 +89,12 @@ namespace Users.APP.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("RefreshTokenExpiration")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("RegistrationDate")
                         .HasColumnType("TEXT");
 

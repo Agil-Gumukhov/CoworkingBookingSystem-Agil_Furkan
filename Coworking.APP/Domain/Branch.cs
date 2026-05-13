@@ -19,5 +19,6 @@ namespace Coworking.APP.Domain
 
         public List<Room> Rooms { get; set; } = new List<Room>();
         public List<Desk> Desks { get; set; } = new List<Desk>();
+        public List<BranchAmenity> BranchAmenities { get; set; } = new List<BranchAmenity>();
     }
 }

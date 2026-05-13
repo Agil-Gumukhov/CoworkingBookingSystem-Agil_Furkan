@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Gateway.API\Gateway.API.csproj" />
+    <ProjectReference Include="..\Users.API\Users.API.csproj" />
     <ProjectReference Include="..\Coworking.API\Coworking.API.csproj" />
   </ItemGroup>
 

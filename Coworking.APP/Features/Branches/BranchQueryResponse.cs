@@ -8,5 +8,6 @@ namespace Coworking.APP.Features.Branches
         public string City { get; set; }
         public int RoomCount { get; set; }
         public int DeskCount { get; set; }
+        public int AmenityCount { get; set; }
     }
 }

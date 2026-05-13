@@ -17,6 +17,29 @@ namespace Coworking.APP.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.24");
 
+            modelBuilder.Entity("Coworking.APP.Domain.Amenity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsPremium")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Amenities");
+                });
+
             modelBuilder.Entity("Coworking.APP.Domain.Booking", b =>
                 {
                     b.Property<int>("Id")
@@ -39,6 +62,8 @@ namespace Coworking.APP.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("UserId")
@@ -62,17 +87,44 @@ namespace Coworking.APP.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.ToTable("Branches");
+                });
+
+            modelBuilder.Entity("Coworking.APP.Domain.BranchAmenity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AmenityId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AmenityId");
+
+                    b.HasIndex("BranchId");
+
+                    b.ToTable("BranchAmenities");
                 });
 
             modelBuilder.Entity("Coworking.APP.Domain.Desk", b =>
@@ -85,6 +137,8 @@ namespace Coworking.APP.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Floor")
@@ -116,6 +170,8 @@ namespace Coworking.APP.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -150,6 +206,25 @@ namespace Coworking.APP.Migrations
                     b.Navigation("Room");
                 });
 
+            modelBuilder.Entity("Coworking.APP.Domain.BranchAmenity", b =>
+                {
+                    b.HasOne("Coworking.APP.Domain.Amenity", "Amenity")
+                        .WithMany("BranchAmenities")
+                        .HasForeignKey("AmenityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Coworking.APP.Domain.Branch", "Branch")
+                        .WithMany("BranchAmenities")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Amenity");
+
+                    b.Navigation("Branch");
+                });
+
             modelBuilder.Entity("Coworking.APP.Domain.Desk", b =>
                 {
                     b.HasOne("Coworking.APP.Domain.Branch", "Branch")
@@ -172,8 +247,15 @@ namespace Coworking.APP.Migrations
                     b.Navigation("Branch");
                 });
 
+            modelBuilder.Entity("Coworking.APP.Domain.Amenity", b =>
+                {
+                    b.Navigation("BranchAmenities");
+                });
+
             modelBuilder.Entity("Coworking.APP.Domain.Branch", b =>
                 {
+                    b.Navigation("BranchAmenities");
+
                     b.Navigation("Desks");
 
                     b.Navigation("Rooms");

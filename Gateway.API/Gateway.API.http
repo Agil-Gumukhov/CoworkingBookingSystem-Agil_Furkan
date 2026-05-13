@@ -1,0 +1,6 @@
+@Gateway.API_HostAddress = https://localhost:7137
+
+GET {{Gateway.API_HostAddress}}/gateway/users/Groups
+Accept: application/json
+
+###

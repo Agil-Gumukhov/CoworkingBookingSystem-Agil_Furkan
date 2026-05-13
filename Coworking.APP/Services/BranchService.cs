@@ -12,12 +12,22 @@ namespace Coworking.APP.Services
 
         public async Task<List<Branch>> GetAllBranchesAsync(CancellationToken cancellationToken)
         {
-            return await DbSet().ToListAsync(cancellationToken);
+            return await DbSet()
+                .Include(b => b.Rooms)
+                .Include(b => b.Desks)
+                .Include(b => b.BranchAmenities)
+                .ThenInclude(ba => ba.Amenity)
+                .ToListAsync(cancellationToken);
         }
 
         public async Task<Branch> GetBranchByIdAsync(int id, CancellationToken cancellationToken)
         {
-            return await DbSet().FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
+            return await DbSet()
+                .Include(b => b.Rooms)
+                .Include(b => b.Desks)
+                .Include(b => b.BranchAmenities)
+                .ThenInclude(ba => ba.Amenity)
+                .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
         }
 
         public async Task<Branch> CreateBranchAsync(Branch branch, CancellationToken cancellationToken)

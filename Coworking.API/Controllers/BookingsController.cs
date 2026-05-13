@@ -1,11 +1,13 @@
 using Coworking.APP.Features.Bookings;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Coworking.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // Requires JWT authentication for all endpoints
     public class BookingsController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -16,6 +18,7 @@ namespace Coworking.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<BookingQueryResponse>>> Get()
         {
             var result = await _mediator.Send(new BookingQueryAllRequest());
@@ -37,6 +40,7 @@ namespace Coworking.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<BookingCreateResponse>> Post([FromBody] BookingCreateRequest request)
         {
             try
@@ -51,6 +55,7 @@ namespace Coworking.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Put(int id, [FromBody] BookingUpdateRequest request)
         {
             try
@@ -66,6 +71,7 @@ namespace Coworking.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try

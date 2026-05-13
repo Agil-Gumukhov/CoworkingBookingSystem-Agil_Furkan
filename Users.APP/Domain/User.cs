@@ -30,6 +30,10 @@ namespace Users.APP.Domain
 
         public string Address { get; set; }
 
+        public string RefreshToken { get; set; }
+
+        public DateTime? RefreshTokenExpiration { get; set; }
+
         public int? CountryId { get; set; } // null
 
         public int? CityId { get; set; } // null
