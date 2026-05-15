@@ -12,6 +12,9 @@ namespace Coworking.APP.Domain
         [Range(1, 100, ErrorMessage = "Capacity must be between 1 and 100")]
         public int Capacity { get; set; }
 
+        [Range(0, 10000, ErrorMessage = "Hourly rate must be between 0 and 10000")]
+        public decimal HourlyRate { get; set; }
+
         public bool HasProjector { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "BranchId must be valid")]

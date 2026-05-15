@@ -25,6 +25,7 @@ namespace Coworking.APP.Features.Rooms
                 Id = room.Id,
                 Name = room.Name,
                 Capacity = room.Capacity,
+                HourlyRate = room.HourlyRate,
                 HasProjector = room.HasProjector,
                 BranchId = room.BranchId,
                 BranchName = room.Branch?.Name
@@ -53,6 +54,7 @@ namespace Coworking.APP.Features.Rooms
                 Id = r.Id,
                 Name = r.Name,
                 Capacity = r.Capacity,
+                HourlyRate = r.HourlyRate,
                 HasProjector = r.HasProjector,
                 BranchId = r.BranchId,
                 BranchName = r.Branch?.Name

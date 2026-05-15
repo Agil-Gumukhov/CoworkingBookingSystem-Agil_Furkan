@@ -19,6 +19,7 @@ namespace Coworking.APP.Features.Desks
             {
                 Code = request.Code,
                 Floor = request.Floor,
+                HourlyRate = request.HourlyRate,
                 IsPrivate = request.IsPrivate,
                 BranchId = request.BranchId
             };
@@ -30,6 +31,7 @@ namespace Coworking.APP.Features.Desks
                 Id = desk.Id,
                 Code = desk.Code,
                 Floor = desk.Floor,
+                HourlyRate = desk.HourlyRate,
                 IsPrivate = desk.IsPrivate,
                 BranchId = desk.BranchId,
                 Message = "Desk created successfully"

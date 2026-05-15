@@ -26,6 +26,7 @@ namespace Coworking.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<AmenityQueryResponse>> Get(int id)
         {
             try

@@ -65,7 +65,7 @@ namespace Users.APP.Features.Users
                 IsActive = request.IsActive,
                 LastName = request.LastName?.Trim(),
                 Password = request.Password,
-                RegistrationDate = request.RegistrationDate,
+                RegistrationDate = request.RegistrationDate == default ? DateTime.Now : request.RegistrationDate,
                 RoleIds = request.RoleIds,
                 Score = request.Score,
                 UserName = request.UserName?.Trim()

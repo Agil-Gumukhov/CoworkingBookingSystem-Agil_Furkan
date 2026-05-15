@@ -25,6 +25,7 @@ namespace Coworking.APP.Features.Desks
                 Id = desk.Id,
                 Code = desk.Code,
                 Floor = desk.Floor,
+                HourlyRate = desk.HourlyRate,
                 IsPrivate = desk.IsPrivate,
                 BranchId = desk.BranchId,
                 BranchName = desk.Branch?.Name
@@ -53,6 +54,7 @@ namespace Coworking.APP.Features.Desks
                 Id = d.Id,
                 Code = d.Code,
                 Floor = d.Floor,
+                HourlyRate = d.HourlyRate,
                 IsPrivate = d.IsPrivate,
                 BranchId = d.BranchId,
                 BranchName = d.Branch?.Name

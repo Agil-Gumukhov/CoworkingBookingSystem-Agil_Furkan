@@ -44,6 +44,11 @@ namespace Coworking.APP.Services
 
         public async Task DeleteBranchAsync(Branch branch, CancellationToken cancellationToken)
         {
+            var hasBookings = await DbSet<Booking>()
+                .AnyAsync(b => b.BranchId == branch.Id, cancellationToken);
+            if (hasBookings)
+                throw new InvalidOperationException("Cannot delete branch that has associated bookings");
+
             var branchWithRoomsDesks = await DbSet()
                 .Include(b => b.Rooms)
                 .Include(b => b.Desks)

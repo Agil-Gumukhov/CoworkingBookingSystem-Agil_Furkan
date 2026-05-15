@@ -22,11 +22,16 @@ namespace Coworking.APP.Features.Amenities
             amenity.Name = request.Name;
             amenity.Description = request.Description;
             amenity.IsPremium = request.IsPremium;
-            amenity.BranchAmenities = request.BranchIds.Distinct().Select(branchId => new BranchAmenity
+            amenity.BranchAmenities.Clear();
+
+            foreach (var branchId in request.BranchIds.Distinct())
             {
-                BranchId = branchId,
-                AmenityId = amenity.Id
-            }).ToList();
+                amenity.BranchAmenities.Add(new BranchAmenity
+                {
+                    BranchId = branchId,
+                    AmenityId = amenity.Id
+                });
+            }
 
             amenity = await _service.UpdateAmenityAsync(amenity, cancellationToken);
 

@@ -10,6 +10,19 @@ namespace Users.APP.Features.Users
 {
     public class UserQueryRequest : Request, IRequest<IQueryable<UserQueryResponse>>
     {
+        public string UserName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public Genders? Gender { get; set; }
+        public DateTime? BirthDateStart { get; set; }
+        public DateTime? BirthDateEnd { get; set; }
+        public decimal? ScoreStart { get; set; }
+        public decimal? ScoreEnd { get; set; }
+        public bool? IsActive { get; set; }
+        public int? CountryId { get; set; }
+        public int? CityId { get; set; }
+        public int? GroupId { get; set; }
+        public List<int> RoleIds { get; set; } = new List<int>();
     }
 
     public class UserQueryResponse : Response
@@ -86,7 +99,48 @@ namespace Users.APP.Features.Users
 
         public Task<IQueryable<UserQueryResponse>> Handle(UserQueryRequest request, CancellationToken cancellationToken)
         {
-            var query = DbSet().Select(userEntity => new UserQueryResponse
+            var entityQuery = DbSet().AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(request.UserName))
+                entityQuery = entityQuery.Where(userEntity => userEntity.UserName == request.UserName.Trim());
+
+            if (!string.IsNullOrWhiteSpace(request.FirstName))
+                entityQuery = entityQuery.Where(userEntity => userEntity.FirstName != null && userEntity.FirstName.Contains(request.FirstName.Trim()));
+
+            if (!string.IsNullOrWhiteSpace(request.LastName))
+                entityQuery = entityQuery.Where(userEntity => userEntity.LastName != null && userEntity.LastName.Contains(request.LastName.Trim()));
+
+            if (request.Gender.HasValue)
+                entityQuery = entityQuery.Where(userEntity => userEntity.Gender == request.Gender.Value);
+
+            if (request.BirthDateStart.HasValue)
+                entityQuery = entityQuery.Where(userEntity => userEntity.BirthDate.HasValue && userEntity.BirthDate.Value.Date >= request.BirthDateStart.Value.Date);
+
+            if (request.BirthDateEnd.HasValue)
+                entityQuery = entityQuery.Where(userEntity => userEntity.BirthDate.HasValue && userEntity.BirthDate.Value.Date <= request.BirthDateEnd.Value.Date);
+
+            if (request.ScoreStart.HasValue)
+                entityQuery = entityQuery.Where(userEntity => userEntity.Score >= request.ScoreStart.Value);
+
+            if (request.ScoreEnd.HasValue)
+                entityQuery = entityQuery.Where(userEntity => userEntity.Score <= request.ScoreEnd.Value);
+
+            if (request.IsActive.HasValue)
+                entityQuery = entityQuery.Where(userEntity => userEntity.IsActive == request.IsActive.Value);
+
+            if (request.CountryId.HasValue)
+                entityQuery = entityQuery.Where(userEntity => userEntity.CountryId == request.CountryId.Value);
+
+            if (request.CityId.HasValue)
+                entityQuery = entityQuery.Where(userEntity => userEntity.CityId == request.CityId.Value);
+
+            if (request.GroupId.HasValue)
+                entityQuery = entityQuery.Where(userEntity => userEntity.GroupId == request.GroupId.Value);
+
+            if (request.RoleIds is not null && request.RoleIds.Any())
+                entityQuery = entityQuery.Where(userEntity => userEntity.UserRoles.Any(userRoleEntity => request.RoleIds.Contains(userRoleEntity.RoleId)));
+
+            var query = entityQuery.Select(userEntity => new UserQueryResponse
             {
                 // entity data
                 Address = userEntity.Address,
@@ -101,7 +155,7 @@ namespace Users.APP.Features.Users
                 LastName = userEntity.LastName,
                 Password = userEntity.Password,
                 RegistrationDate = userEntity.RegistrationDate,
-                RoleIds = userEntity.RoleIds,
+                RoleIds = userEntity.UserRoles.Select(userRoleEntity => userRoleEntity.RoleId).ToList(),
                 Score = userEntity.Score,
                 UserName = userEntity.UserName,
                 
@@ -114,9 +168,9 @@ namespace Users.APP.Features.Users
                 BirthDateF = userEntity.BirthDate.HasValue ? userEntity.BirthDate.Value.ToString("MM/dd/yyyy") : string.Empty,
                 
                 // Way 1:
-                GroupF = userEntity.Group.Title,
+                GroupF = userEntity.Group != null ? userEntity.Group.Title : null,
                 // Way 2:
-                Group = new GroupQueryResponse
+                Group = userEntity.Group == null ? null : new GroupQueryResponse
                 {
                     Id = userEntity.Group.Id,
                     Title = userEntity.Group.Title

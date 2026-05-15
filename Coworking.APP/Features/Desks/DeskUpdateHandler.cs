@@ -21,6 +21,7 @@ namespace Coworking.APP.Features.Desks
 
             desk.Code = request.Code;
             desk.Floor = request.Floor;
+            desk.HourlyRate = request.HourlyRate;
             desk.IsPrivate = request.IsPrivate;
             desk.BranchId = request.BranchId;
 
@@ -31,6 +32,7 @@ namespace Coworking.APP.Features.Desks
                 Id = desk.Id,
                 Code = desk.Code,
                 Floor = desk.Floor,
+                HourlyRate = desk.HourlyRate,
                 IsPrivate = desk.IsPrivate,
                 BranchId = desk.BranchId,
                 Message = "Desk updated successfully"

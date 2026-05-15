@@ -45,7 +45,12 @@ namespace Users.API.Controllers
         {
             try
             {
-                var response = await _mediator.Send(new UserQueryRequest());
+                var response = await _mediator.Send(new UserQueryRequest
+                {
+                    IsActive = isActive,
+                    GroupId = groupId,
+                    RoleIds = roleId.HasValue ? new List<int> { roleId.Value } : new List<int>()
+                });
 
                 if (!string.IsNullOrWhiteSpace(search))
                 {
@@ -56,15 +61,6 @@ namespace Users.API.Controllers
                         (user.LastName != null && user.LastName.ToLower().Contains(searchValue)));
                 }
 
-                if (isActive.HasValue)
-                    response = response.Where(user => user.IsActive == isActive.Value);
-
-                if (groupId.HasValue)
-                    response = response.Where(user => user.GroupId == groupId.Value);
-
-                if (roleId.HasValue)
-                    response = response.Where(user => user.RoleIds.Contains(roleId.Value));
-
                 var list = await response.ToListAsync();
                 if (list.Any())
                     return Ok(list);
@@ -73,6 +69,24 @@ namespace Users.API.Controllers
             catch (Exception exception)
             {
                 _logger.LogError("UsersGetFiltered Exception: " + exception.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new CommandResponse(false, "An exception occured during UsersGetFiltered."));
+            }
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> GetFiltered(UserQueryRequest request)
+        {
+            try
+            {
+                var response = await _mediator.Send(request);
+                var list = await response.ToListAsync();
+                if (list.Any())
+                    return Ok(list);
+                return NoContent();
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError("UsersGetFilteredPost Exception: " + exception.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, new CommandResponse(false, "An exception occured during UsersGetFiltered."));
             }
         }

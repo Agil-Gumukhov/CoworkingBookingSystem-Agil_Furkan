@@ -14,6 +14,9 @@ namespace Coworking.APP.Features.Desks
         [Range(0, 100, ErrorMessage = "Floor must be between 0 and 100")]
         public int Floor { get; set; }
 
+        [Range(0, 10000, ErrorMessage = "Hourly rate must be between 0 and 10000")]
+        public decimal HourlyRate { get; set; }
+
         public bool IsPrivate { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "BranchId must be valid")]

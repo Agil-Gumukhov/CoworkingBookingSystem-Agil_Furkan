@@ -19,6 +19,7 @@ namespace Coworking.APP.Features.Rooms
             {
                 Name = request.Name,
                 Capacity = request.Capacity,
+                HourlyRate = request.HourlyRate,
                 HasProjector = request.HasProjector,
                 BranchId = request.BranchId
             };
@@ -30,6 +31,7 @@ namespace Coworking.APP.Features.Rooms
                 Id = room.Id,
                 Name = room.Name,
                 Capacity = room.Capacity,
+                HourlyRate = room.HourlyRate,
                 HasProjector = room.HasProjector,
                 BranchId = room.BranchId,
                 Message = "Room created successfully"

@@ -30,48 +30,14 @@ namespace Coworking.APP.Services
 
         public async Task<Booking> CreateBookingAsync(Booking booking, CancellationToken cancellationToken)
         {
-            var branch = await DbSet<Branch>().FirstOrDefaultAsync(b => b.Id == booking.BranchId, cancellationToken);
-            if (branch == null)
-                throw new InvalidOperationException($"Branch with Id {booking.BranchId} not found");
-
-            if (booking.RoomId.HasValue)
-            {
-                var room = await DbSet<Room>().FirstOrDefaultAsync(r => r.Id == booking.RoomId, cancellationToken);
-                if (room == null)
-                    throw new InvalidOperationException($"Room with Id {booking.RoomId} not found");
-            }
-
-            if (booking.DeskId.HasValue)
-            {
-                var desk = await DbSet<Desk>().FirstOrDefaultAsync(d => d.Id == booking.DeskId, cancellationToken);
-                if (desk == null)
-                    throw new InvalidOperationException($"Desk with Id {booking.DeskId} not found");
-            }
-
+            await ValidateBookingAsync(booking, cancellationToken);
             await CreateAsync(booking, cancellationToken);
             return booking;
         }
 
         public async Task<Booking> UpdateBookingAsync(Booking booking, CancellationToken cancellationToken)
         {
-            var branch = await DbSet<Branch>().FirstOrDefaultAsync(b => b.Id == booking.BranchId, cancellationToken);
-            if (branch == null)
-                throw new InvalidOperationException($"Branch with Id {booking.BranchId} not found");
-
-            if (booking.RoomId.HasValue)
-            {
-                var room = await DbSet<Room>().FirstOrDefaultAsync(r => r.Id == booking.RoomId, cancellationToken);
-                if (room == null)
-                    throw new InvalidOperationException($"Room with Id {booking.RoomId} not found");
-            }
-
-            if (booking.DeskId.HasValue)
-            {
-                var desk = await DbSet<Desk>().FirstOrDefaultAsync(d => d.Id == booking.DeskId, cancellationToken);
-                if (desk == null)
-                    throw new InvalidOperationException($"Desk with Id {booking.DeskId} not found");
-            }
-
+            await ValidateBookingAsync(booking, cancellationToken);
             await UpdateAsync(booking, cancellationToken);
             return booking;
         }
@@ -79,6 +45,58 @@ namespace Coworking.APP.Services
         public async Task DeleteBookingAsync(Booking booking, CancellationToken cancellationToken)
         {
             await DeleteAsync(booking, cancellationToken);
+        }
+
+        private async Task ValidateBookingAsync(Booking booking, CancellationToken cancellationToken)
+        {
+            if (booking.EndDate <= booking.StartDate)
+                throw new InvalidOperationException("End date must be later than start date");
+
+            if (booking.RoomId.HasValue == booking.DeskId.HasValue)
+                throw new InvalidOperationException("Select either one room or one desk for a booking");
+
+            var branchExists = await DbSet<Branch>()
+                .AnyAsync(b => b.Id == booking.BranchId, cancellationToken);
+            if (!branchExists)
+                throw new InvalidOperationException($"Branch with Id {booking.BranchId} not found");
+
+            if (booking.RoomId.HasValue)
+            {
+                var room = await DbSet<Room>()
+                    .FirstOrDefaultAsync(r => r.Id == booking.RoomId.Value, cancellationToken);
+                if (room is null)
+                    throw new InvalidOperationException($"Room with Id {booking.RoomId} not found");
+                if (room.BranchId != booking.BranchId)
+                    throw new InvalidOperationException("Selected room does not belong to the selected branch");
+
+                var hasConflict = await DbSet()
+                    .AnyAsync(b => b.Id != booking.Id
+                        && b.RoomId == booking.RoomId
+                        && b.Status != "Cancelled"
+                        && booking.StartDate < b.EndDate
+                        && booking.EndDate > b.StartDate, cancellationToken);
+                if (hasConflict)
+                    throw new InvalidOperationException("Selected room already has a booking in this time interval");
+            }
+
+            if (booking.DeskId.HasValue)
+            {
+                var desk = await DbSet<Desk>()
+                    .FirstOrDefaultAsync(d => d.Id == booking.DeskId.Value, cancellationToken);
+                if (desk is null)
+                    throw new InvalidOperationException($"Desk with Id {booking.DeskId} not found");
+                if (desk.BranchId != booking.BranchId)
+                    throw new InvalidOperationException("Selected desk does not belong to the selected branch");
+
+                var hasConflict = await DbSet()
+                    .AnyAsync(b => b.Id != booking.Id
+                        && b.DeskId == booking.DeskId
+                        && b.Status != "Cancelled"
+                        && booking.StartDate < b.EndDate
+                        && booking.EndDate > b.StartDate, cancellationToken);
+                if (hasConflict)
+                    throw new InvalidOperationException("Selected desk already has a booking in this time interval");
+            }
         }
     }
 }
