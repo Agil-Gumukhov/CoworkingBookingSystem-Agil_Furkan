@@ -26,7 +26,6 @@ namespace Coworking.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [AllowAnonymous]
         public async Task<ActionResult<BookingQueryResponse>> Get(int id)
         {
             try
